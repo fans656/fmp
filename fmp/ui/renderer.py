@@ -1,0 +1,30 @@
+import os
+from pathlib import Path
+
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Qt
+
+os.environ['PATH'] = f"{os.environ['PATH']}{os.pathsep}{str(Path('./lib'))}"; import mpv
+
+
+class Renderer(QWidget):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setAttribute(Qt.WA_DontCreateNativeAncestors)
+        self.setAttribute(Qt.WA_NativeWindow)
+        self.setMouseTracking(True)
+
+        self.mpv = mpv.MPV(wid=str(int(self.winId())), vo='gpu')
+
+    def mouseMoveEvent(self, event):
+        self.parent().mouseMoveEvent(event)
+
+    def set_fullscreen(self, fullscreen: bool):
+        if fullscreen:
+            self.normal_geometry = self.geometry()
+            self.mpv.fullscreen = True
+            self.setGeometry(self.screen().geometry())
+        else:
+            self.mpv.fullscreen = False
+            self.setGeometry(self.normal_geometry)

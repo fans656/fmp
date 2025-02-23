@@ -1,0 +1,17 @@
+from fans.bunch import bunch
+
+
+resize_margin = 4
+title_bar = bunch(**{
+    'height': 20,
+})
+osd = bunch(**{
+    'hover_height': 50,
+    'height': 70,
+})
+preview_thumb = bunch(**{
+    'width': 170,
+    'height': 100,
+})
+button_size = 20
+icon_size = 16
