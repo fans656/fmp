@@ -62,5 +62,5 @@ def humanized_time(seconds):
 def calc_preview_thumb_xy(rect, percent):
     x_max = rect.width() - cons.preview_thumb.width
     x = x_max * percent / 100.0
-    y = rect.height() - cons.preview_thumb.height - cons.osd.height
+    y = rect.height() - cons.preview_thumb.height - cons.osc.height
     return x, y

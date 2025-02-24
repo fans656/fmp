@@ -5,7 +5,7 @@ resize_margin = 4
 title_bar = bunch(**{
     'height': 20,
 })
-osd = bunch(**{
+osc = bunch(**{
     'hover_height': 50,
     'height': 70,
 })

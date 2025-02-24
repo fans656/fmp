@@ -35,7 +35,7 @@ class ProgressBar(QSlider):
         self.preview_percent(value / slider_range * 100.0)
 
 
-class OSD(QWidget):
+class OSC(QWidget):
 
     def __init__(
             self,

@@ -7,7 +7,7 @@ from fmp.ui import util
 from .common.drawers import Drawers
 from .renderer import Renderer
 from .title_bar import TitleBar
-from .osd import OSD
+from .osc import OSC
 from .preview_thumb import PreviewThumb
 
 
@@ -23,7 +23,7 @@ class Player(QMainWindow):
 
         self.renderer = Renderer(self, show_log=True)
         self.title_bar = TitleBar(self)
-        self.osd = self.setup_osd()
+        self.osc = self.setup_osc()
         self.drawers = self.setup_drawers()
 
         self.preview_thumb = self.setup_preview_thumb()
@@ -44,8 +44,8 @@ class Player(QMainWindow):
     def setup_preview_thumb(self):
         return PreviewThumb(self.video_path, self)
 
-    def setup_osd(self):
-        return OSD(
+    def setup_osc(self):
+        return OSC(
             self,
             seek_percent=self.seek_percent,
             preview_percent=self.preview_percent,
@@ -59,10 +59,10 @@ class Player(QMainWindow):
             hover_height=cons.title_bar.height,
         )
         drawers.add(
-            self.osd,
+            self.osc,
             'bottom',
-            hover_height=cons.osd.hover_height,
-            height=cons.osd.height,
+            hover_height=cons.osc.hover_height,
+            height=cons.osc.height,
         )
         return drawers
 
@@ -105,7 +105,7 @@ class Player(QMainWindow):
             self.setCursor(util.cursor_from_edges(util.calc_resize_edges(pos, self.rect())))
 
     def update_progress(self, _, time):
-        self.osd.update_progress(time, self.mpv.duration)
+        self.osc.update_progress(time, self.mpv.duration)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():
