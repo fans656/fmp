@@ -21,7 +21,7 @@ class Player(QMainWindow):
 
         self.video_path = files[0]  # TODO: support multiple files as playlist
 
-        self.renderer = Renderer(self)
+        self.renderer = Renderer(self, show_log=True)
         self.title_bar = TitleBar(self)
         self.osd = self.setup_osd()
         self.drawers = self.setup_drawers()

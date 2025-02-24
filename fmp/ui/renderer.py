@@ -9,13 +9,21 @@ os.environ['PATH'] = f"{os.environ['PATH']}{os.pathsep}{str(Path('./lib'))}"; im
 
 class Renderer(QWidget):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+            self,
+            parent,
+            show_log: bool = False,
+    ):
+        super().__init__(parent)
         self.setAttribute(Qt.WA_DontCreateNativeAncestors)
         self.setAttribute(Qt.WA_NativeWindow)
         self.setMouseTracking(True)
 
-        self.mpv = mpv.MPV(wid=str(int(self.winId())), vo='gpu')
+        self.mpv = mpv.MPV(
+            wid=str(int(self.winId())),
+            vo='gpu',
+            log_handler=self.mpv_log_handler if show_log else None,
+        )
 
     def mouseMoveEvent(self, event):
         self.parent().mouseMoveEvent(event)
@@ -28,3 +36,6 @@ class Renderer(QWidget):
         else:
             self.mpv.fullscreen = False
             self.setGeometry(self.normal_geometry)
+
+    def mpv_log_handler(self, log_level, log_type, log_message):
+        print(f'[mpv][{log_level}][{log_type}] {log_message.strip()}')
