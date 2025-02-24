@@ -88,7 +88,7 @@ class Player(QMainWindow):
                 self.seek(util.seek_time_from_modifiers(event))
             case Qt.Key_T:
                 pos = self.mpv._get_property('time-pos/full')
-                print(f'tag {pos}')
+                self.osd(f'Tagging {util.humanized_time(pos)}')
             case Qt.Key_E:
                 print('edit tag')
             case _:
@@ -126,8 +126,12 @@ class Player(QMainWindow):
     def seek(self, time):
         self.mpv.seek(time)
 
+        now = self.mpv.time_pos
+        self.osd(f'Seek {"+" if time > 0 else ""}{time}s ({util.humanized_time(now)})', 200)
+
     def seek_percent(self, percent):
         self.mpv.percent_pos = percent
+        self.osd(f'Seek to {percent:.2f}%')
 
     def preview_percent(self, percent):
         if percent is None:
@@ -136,3 +140,6 @@ class Player(QMainWindow):
             self.preview_thumb.mpv.percent_pos = percent
             self.preview_thumb.move(*util.calc_preview_thumb_xy(self.rect(), percent))
             self.preview_thumb.show()
+
+    def osd(self, message: str, duration: int = 1000):
+        self.mpv.command('show-text', message, 3000)

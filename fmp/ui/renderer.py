@@ -13,6 +13,7 @@ class Renderer(QWidget):
             self,
             parent,
             show_log: bool = False,
+            mpv_kwargs: dict = {},
     ):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DontCreateNativeAncestors)
