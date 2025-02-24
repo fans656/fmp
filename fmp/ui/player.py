@@ -86,6 +86,11 @@ class Player(QMainWindow):
                 self.toggle_play()
             case Qt.Key_Left | Qt.Key_Right:
                 self.seek(util.seek_time_from_modifiers(event))
+            case Qt.Key_T:
+                pos = self.mpv._get_property('time-pos/full')
+                print(f'tag {pos}')
+            case Qt.Key_E:
+                print('edit tag')
             case _:
                 super().keyPressEvent(event)
 
