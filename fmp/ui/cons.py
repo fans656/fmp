@@ -13,5 +13,9 @@ preview_thumb = bunch(**{
     'width': 170,
     'height': 100,
 })
+side_panel = bunch(**{
+    'hover_width': 20,
+    'width': 300,
+})
 button_size = 20
 icon_size = 16

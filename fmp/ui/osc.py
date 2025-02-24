@@ -1,9 +1,8 @@
-import sys
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
+    QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
 )
 from PySide6.QtCore import Qt, QSize, QRect
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon
 
 from fmp.ui import cons
 from fmp.ui.util import humanized_time

@@ -55,6 +55,18 @@ def rect_func_from_placement(placement, hover_width, hover_height, width, height
                     0, parent_rect.height() - height,
                     parent_rect.width(), height,
                 )
+            case 'left':
+                hover_rect = QRect(0, 0, hover_width, parent_rect.height())
+                drawer_rect = QRect(0, 0, width, parent_rect.height())
+            case 'right':
+                hover_rect = QRect(
+                    parent_rect.width() - hover_width, 0,
+                    hover_width, parent_rect.height(),
+                )
+                drawer_rect = QRect(
+                    parent_rect.width() - width, 0,
+                    width, parent_rect.height(),
+                )
             case _:
                 raise ValueError(f'unsupported placement "{placement}"')
         return hover_rect, drawer_rect

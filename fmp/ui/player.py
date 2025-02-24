@@ -11,6 +11,7 @@ from .title_bar import TitleBar
 from .osc import OSC
 from .preview_thumb import PreviewThumb
 from .tag_dialog import TagDialog
+from .side_panel import SidePanel
 
 
 class Player(QMainWindow):
@@ -26,6 +27,8 @@ class Player(QMainWindow):
         self.renderer = Renderer(self, show_log=True)
         self.title_bar = TitleBar(self)
         self.osc = self.setup_osc()
+        self.left_side_panel = self.setup_left_side_panel()
+        self.right_side_panel = self.setup_right_side_panel()
         self.drawers = self.setup_drawers()
 
         self.preview_thumb = self.setup_preview_thumb()
@@ -55,6 +58,16 @@ class Player(QMainWindow):
             preview_percent=self.preview_percent,
         )
 
+    def setup_left_side_panel(self):
+        return SidePanel(
+            self,
+        )
+
+    def setup_right_side_panel(self):
+        return SidePanel(
+            self,
+        )
+
     def setup_drawers(self):
         drawers = Drawers()
         drawers.add(
@@ -67,6 +80,18 @@ class Player(QMainWindow):
             'bottom',
             hover_height=cons.osc.hover_height,
             height=cons.osc.height,
+        )
+        drawers.add(
+            self.left_side_panel,
+            'left',
+            hover_width=cons.side_panel.hover_width,
+            width=cons.side_panel.width,
+        )
+        drawers.add(
+            self.right_side_panel,
+            'right',
+            hover_width=cons.side_panel.hover_width,
+            width=cons.side_panel.width,
         )
         return drawers
 
