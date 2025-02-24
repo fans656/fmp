@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QMainWindow, QLineEdit, QTextEdit, QApplication
+from PySide6.QtWidgets import QMainWindow, QLineEdit, QTextEdit, QApplication, QDialog
 from PySide6.QtCore import Qt, QRect, QEvent
+from PySide6.QtGui import QShortcut
 
 from fmp.ui import cons
 from fmp.ui import util
@@ -9,6 +10,7 @@ from .renderer import Renderer
 from .title_bar import TitleBar
 from .osc import OSC
 from .preview_thumb import PreviewThumb
+from .tag_dialog import TagDialog
 
 
 class Player(QMainWindow):
@@ -32,6 +34,8 @@ class Player(QMainWindow):
 
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setCentralWidget(self.renderer)
+
+        self.setup_shortcuts()
 
         # child widget might take focus, use event filter to handle global shortcuts
         QApplication.instance().installEventFilter(self)
@@ -78,29 +82,37 @@ class Player(QMainWindow):
         self.update_cursor(event.pos())
         self.drawers.on_mouse_move(event.pos(), self.rect())
 
-    def keyPressEvent(self, event):
-        match event.key():
-            case Qt.Key_Return | Qt.Key_Enter:
-                self.toggle_fullscreen()
-            case Qt.Key_Space:
-                self.toggle_play()
-            case Qt.Key_Left | Qt.Key_Right:
-                self.seek(util.seek_time_from_modifiers(event))
-            case Qt.Key_T:
-                pos = self.mpv._get_property('time-pos/full')
-                self.osd(f'Tagging {util.humanized_time(pos)}')
-            case Qt.Key_E:
-                print('edit tag')
-            case _:
-                super().keyPressEvent(event)
+    def setup_shortcuts(self):
+        self.shortcuts = []
+        for key, func in [
+                (Qt.Key_Return, self.toggle_fullscreen),
+                (Qt.Key_Space, self.toggle_play),
+
+                (Qt.Key_Left, lambda: self.seek(-5)),
+                (CtrlLeft, lambda: self.seek(-30)),
+                (ShiftLeft, lambda: self.seek(-60)),
+                (Qt.Key_Right, lambda: self.seek(5)),
+                (CtrlRight, lambda: self.seek(30)),
+                (ShiftRight, lambda: self.seek(60)),
+
+                (Qt.Key_T, self.tag),
+                (Qt.Key_E, self.edit_tag),
+        ]:
+            shortcut = QShortcut(key, self)
+            shortcut.activated.connect(func)
+            self.shortcuts.append(shortcut)
+
+    def enable_shortcuts(self, enabled: bool = True):
+        for shortcut in self.shortcuts:
+            shortcut.setEnabled(enabled)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
-            if isinstance(obj, (QLineEdit, QTextEdit)):
-                return False
-            else:
-                self.keyPressEvent(event)
-                return True
+        if event.type() == event.Type.FocusIn:
+            if isinstance(obj, (QLineEdit, QTextEdit, QDialog)):
+                self.enable_shortcuts(False)
+        elif event.type() == event.Type.FocusOut:
+            if isinstance(obj, (QLineEdit, QTextEdit, QDialog)):
+                self.enable_shortcuts(True)
         return super().eventFilter(obj, event)
 
     def update_cursor(self, pos):
@@ -143,3 +155,16 @@ class Player(QMainWindow):
 
     def osd(self, message: str, duration: int = 1000):
         self.mpv.command('show-text', message, 3000)
+
+    def tag(self):
+        pos = self.mpv._get_property('time-pos/full')
+        self.osd(f'Tagging {util.humanized_time(pos)}')
+
+    def edit_tag(self):
+        TagDialog().exec()
+
+
+CtrlLeft = Qt.Key_Left | Qt.ControlModifier
+ShiftLeft = Qt.Key_Left | Qt.ShiftModifier
+CtrlRight = Qt.Key_Right | Qt.ControlModifier
+ShiftRight = Qt.Key_Right | Qt.ShiftModifier
