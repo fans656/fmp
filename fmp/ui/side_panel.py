@@ -13,5 +13,6 @@ class SidePanel(QWidget):
         self.panels.append(panel)
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(panel)
         self.setLayout(layout)
