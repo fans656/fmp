@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QLineEdit, QTextEdit, QApplication, QDialog
 from PySide6.QtCore import Qt, QRect, QEvent
 from PySide6.QtGui import QShortcut
+from fans.logger import get_logger
 
 from fmp.ui import cons
 from fmp.ui import util
@@ -12,6 +13,11 @@ from .osc import OSC
 from .preview_thumb import PreviewThumb
 from .tag_dialog import TagDialog
 from .side_panel import SidePanel
+from .sidecar import Sidecar
+from .tags_panel import TagsPanel
+
+
+logger = get_logger(__name__)
 
 
 class Player(QMainWindow):
@@ -59,9 +65,29 @@ class Player(QMainWindow):
         )
 
     def setup_left_side_panel(self):
-        return SidePanel(
+        panel = SidePanel(
             self,
         )
+
+        self.tags_panel = TagsPanel(panel)
+        self.update_tags_panel()
+        self.tags_panel.tag_double_clicked.connect(self.on_seek_tag)
+        self.tags_panel.delete_tag_clicked.connect(self.on_delete_tag)
+
+        panel.add_panel(self.tags_panel)
+        return panel
+
+    def on_seek_tag(self, tag):
+        self.mpv.time_pos = tag['time_pos']
+
+    def on_delete_tag(self, tag):
+        with self.sidecar.tags as tags:
+            tags.delete(tag)
+        self.update_tags_panel()
+
+    def update_tags_panel(self):
+        with self.sidecar.tags as tags:
+            self.tags_panel.update(tags.tags)
 
     def setup_right_side_panel(self):
         return SidePanel(
@@ -180,13 +206,22 @@ class Player(QMainWindow):
 
     def osd(self, message: str, duration: int = 1000):
         self.mpv.command('show-text', message, 3000)
+        logger.info(f'[OSD] {message}')
 
     def tag(self):
-        pos = self.mpv._get_property('time-pos/full')
-        self.osd(f'Tagging {util.humanized_time(pos)}')
+        time_pos = self.mpv._get_property('time-pos/full')
+        self.osd(f'Tagging {util.humanized_time(time_pos)}')
+
+        with self.sidecar.tags as tags:
+            tags.add({'time_pos': time_pos})
+        self.update_tags_panel()
 
     def edit_tag(self):
         TagDialog().exec()
+
+    @property
+    def sidecar(self):
+        return Sidecar(self.video_path)
 
 
 CtrlLeft = Qt.Key_Left | Qt.ControlModifier
