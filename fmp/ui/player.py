@@ -156,6 +156,9 @@ class Player(QMainWindow):
 
                 (Qt.Key_T, self.tag),
                 (Qt.Key_E, self.edit_tag),
+
+                (Qt.Key_F, lambda: self.mpv.command('frame-step')),
+                (Qt.Key_D, lambda: self.mpv.command('frame-back-step')),
         ]:
             shortcut = QShortcut(key, self)
             shortcut.activated.connect(func)
