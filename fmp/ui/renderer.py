@@ -24,6 +24,7 @@ class Renderer(QWidget):
             wid=str(int(self.winId())),
             vo='gpu',
             log_handler=self.mpv_log_handler if show_log else None,
+            keep_open=True,
         )
 
     def mouseMoveEvent(self, event):
