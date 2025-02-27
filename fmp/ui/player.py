@@ -87,11 +87,20 @@ class Player(QMainWindow):
         self.update_tags_panel()
 
     def edit_tag(self, tag: dict = None):
+        if not tag:
+            time_pos = self.mpv.time_pos
+            with self.sidecar.tags as tags:
+                for _tag in sorted(tags.tags, key=lambda d: d['time_pos'], reverse=True):
+                    if _tag['time_pos'] <= time_pos:
+                        tag = _tag
+
         if tag:
             TagDialog(tag).exec()
             with self.sidecar.tags as tags:
                 tags.update(tag)
             self.update_tags_panel()
+        else:
+            self.osd('No tag near current position')
 
     def update_tags_panel(self):
         with self.sidecar.tags as tags:
