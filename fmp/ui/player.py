@@ -5,6 +5,7 @@ from fans.logger import get_logger
 
 from fmp.ui import cons
 from fmp.ui import util
+from fmp.data import Sidecar
 
 from .common.drawers import Drawers
 from .renderer import Renderer
@@ -13,7 +14,6 @@ from .osc import OSC
 from .preview_thumb import PreviewThumb
 from .tag_dialog import TagDialog
 from .side_panel import SidePanel
-from .sidecar import Sidecar
 from .tags_panel import TagsPanel
 
 

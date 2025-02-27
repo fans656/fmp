@@ -1,20 +1,4 @@
-import contextlib
-
 from fans.path import make_paths, Path
-
-
-class Sidecar:
-
-    def __init__(self, fpath: str):
-        self.dir_path = Path(f'{fpath}.sidecar')
-
-    @property
-    def tags(self):
-        @contextlib.contextmanager
-        def _tags():
-            self.dir_path.ensure_dir()
-            yield Tags(self.dir_path)
-        return _tags()
 
 
 class Tags:
@@ -47,3 +31,4 @@ class Tags:
 
     def save(self, data):
         self.fpath.save(data, indent=2, ensure_ascii=False)
+
