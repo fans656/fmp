@@ -90,9 +90,15 @@ class Player(QMainWindow):
         if not tag:
             time_pos = self.mpv.time_pos
             with self.sidecar.tags as tags:
+                min_dis = float('inf')
+                target_tag = None
                 for _tag in sorted(tags.tags, key=lambda d: d['time_pos'], reverse=True):
-                    if _tag['time_pos'] <= time_pos:
-                        tag = _tag
+                    _dis = abs(_tag['time_pos'] - time_pos)
+                    if _dis < min_dis or _dis == min_dis and _tag['time_pos'] < time_pos:
+                        min_dis = _dis
+                        target_tag = _tag
+                if target_tag:
+                    tag = target_tag
 
         if tag:
             TagDialog(tag).exec()
