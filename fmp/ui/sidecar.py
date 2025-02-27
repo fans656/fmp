@@ -32,6 +32,12 @@ class Tags:
         data['tags'] = [d for d in data['tags'] if d['time_pos'] != tag['time_pos']]
         self.fpath.save(data)
 
+    def update(self, tag):
+        # NOTE: tag dict already updated by caller
+        data = self.load()
+        data['tags'] = [tag if d['time_pos'] == tag['time_pos'] else d for d in data['tags']]
+        self.fpath.save(data)
+
     @property
     def tags(self):
         return self.load()['tags']

@@ -5,13 +5,23 @@ import qtawesome
 
 class IconButton(QPushButton):
 
-    def __init__(self, icon: str, clicked = None, size: int = 16):
+    def __init__(
+            self,
+            icon: str,
+            clicked = None,
+            tooltip: str = None,
+            size: int = 16,
+    ):
         super().__init__()
         self.setIcon(qtawesome.icon(aliases.get(icon, icon)))
         self.setIconSize(QSize(size, size))
         self.setFixedSize(self.iconSize())
+
         if clicked:
             self.clicked.connect(clicked)
+
+        if tooltip:
+            self.setToolTip(tooltip)
 
 
 aliases = {

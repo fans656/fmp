@@ -71,19 +71,27 @@ class Player(QMainWindow):
 
         self.tags_panel = TagsPanel(panel)
         self.update_tags_panel()
-        self.tags_panel.tag_double_clicked.connect(self.on_seek_tag)
-        self.tags_panel.delete_tag_clicked.connect(self.on_delete_tag)
+        self.tags_panel.tag_double_clicked.connect(self.seek_tag)
+        self.tags_panel.edit_tag_clicked.connect(self.edit_tag)
+        self.tags_panel.delete_tag_clicked.connect(self.delete_tag)
 
         panel.add_panel(self.tags_panel)
         return panel
 
-    def on_seek_tag(self, tag):
+    def seek_tag(self, tag):
         self.mpv.time_pos = tag['time_pos']
 
-    def on_delete_tag(self, tag):
+    def delete_tag(self, tag):
         with self.sidecar.tags as tags:
             tags.delete(tag)
         self.update_tags_panel()
+
+    def edit_tag(self, tag: dict = None):
+        if tag:
+            TagDialog(tag).exec()
+            with self.sidecar.tags as tags:
+                tags.update(tag)
+            self.update_tags_panel()
 
     def update_tags_panel(self):
         with self.sidecar.tags as tags:
@@ -215,9 +223,6 @@ class Player(QMainWindow):
         with self.sidecar.tags as tags:
             tags.add({'time_pos': time_pos})
         self.update_tags_panel()
-
-    def edit_tag(self):
-        TagDialog().exec()
 
     @property
     def sidecar(self):

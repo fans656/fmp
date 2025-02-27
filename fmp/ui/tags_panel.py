@@ -33,8 +33,16 @@ class TagsPanel(QWidget):
         layout = QHBoxLayout(widget)
         layout.addWidget(QLabel(util.humanized_time(tag_data.get('time_pos', 0))))
         layout.addWidget(QLabel(tag_data.get('tag', '')))
-        layout.addWidget(IconButton('edit', lambda: self.edit_tag_clicked.emit(tag_data)))
-        layout.addWidget(IconButton('delete', lambda: self.delete_tag_clicked.emit(tag_data)))
+        layout.addWidget(IconButton(
+            'edit',
+            tooltip='Edit',
+            clicked=lambda: self.edit_tag_clicked.emit(tag_data)
+        ))
+        layout.addWidget(IconButton(
+            'delete',
+            tooltip='Delete',
+            clicked=lambda: self.delete_tag_clicked.emit(tag_data),
+        ))
         widget.setLayout(layout)
 
         item = QListWidgetItem()
