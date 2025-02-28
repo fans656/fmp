@@ -8,7 +8,7 @@ from fmp.ui import cons
 from fmp.ui.util import humanized_time
 
 from .renderer import Renderer
-from .progress_bar import ProgressBar
+from .progress import Progress
 
 
 class OSC(QWidget):
@@ -29,7 +29,7 @@ class OSC(QWidget):
         main_layout.setContentsMargins(10, 0, 10, 0)
 
         # Play progress slider
-        self.progress = ProgressBar(preview_percent=preview_percent)
+        self.progress = Progress(preview_percent=preview_percent)
         self.progress.percent_seek_requested.connect(self.seek_percent)
         main_layout.addWidget(self.progress)
 
