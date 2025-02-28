@@ -107,7 +107,7 @@ class Player(QMainWindow):
 
     def update_tags_panel(self):
         with self.sidecar.tags as tags:
-            self.tags_panel.update(tags.tags)
+            self.tags_panel.update(tags.sorted_tags)
 
     def setup_right_side_panel(self):
         return SidePanel(
