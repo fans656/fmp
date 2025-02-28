@@ -23,6 +23,7 @@ class OSC(QWidget):
         super().__init__(*args, **kwargs)
 
         self.seek_percent = seek_percent
+        self.duration = None
 
         main_layout = QVBoxLayout()
         main_layout.setSpacing(0)
@@ -79,12 +80,16 @@ class OSC(QWidget):
         # Set the main layout to the widget
         self.setLayout(main_layout)
 
-    def update_progress(self, current_time, total_time):
-        if current_time is None or total_time is None:
-            return
-        self.current_time_label.setText(humanized_time(current_time))
-        self.total_time_label.setText(humanized_time(total_time))
-        self.progress.set_ratio_pos(current_time / total_time)
+    def set_duration(self, seconds: float):
+        if seconds is not None:
+            self.duration = seconds
+            self.progress.set_duration(seconds)
+
+    def set_time_pos(self, time_pos: float):
+        if time_pos is not None:
+            self.current_time_label.setText(humanized_time(time_pos))
+            self.total_time_label.setText(humanized_time(self.duration))
+            self.progress.set_time_pos(time_pos)
 
     def toggle_play_pause(self, is_playing):
         if is_playing:

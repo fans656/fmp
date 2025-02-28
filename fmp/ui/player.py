@@ -51,7 +51,8 @@ class Player(QMainWindow):
 
     def setup_mpv(self):
         self.mpv = self.renderer.mpv
-        self.mpv.observe_property('time-pos', self.update_progress)
+        self.mpv.observe_property('duration', self.on_property_duration)
+        self.mpv.observe_property('time-pos', self.on_property_time_pos)
         self.mpv.play(self.video_path)
 
     def setup_preview_thumb(self):
@@ -188,8 +189,11 @@ class Player(QMainWindow):
         else:
             self.setCursor(util.cursor_from_edges(util.calc_resize_edges(pos, self.rect())))
 
-    def update_progress(self, _, time):
-        self.osc.update_progress(time, self.mpv.duration)
+    def on_property_time_pos(self, _, time_pos):
+        self.osc.set_time_pos(time_pos)
+
+    def on_property_duration(self, _, duration):
+        self.osc.set_duration(duration)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():
