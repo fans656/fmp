@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QLineEdit, QTextEdit, QApplication, QDialog
-from PySide6.QtCore import Qt, QRect, QEvent
+from PySide6.QtCore import Qt, QRect, QEvent, Signal
 from PySide6.QtGui import QShortcut
 from fans.logger import get_logger
 
@@ -22,6 +22,8 @@ logger = get_logger(__name__)
 
 class Player(QMainWindow):
 
+    on_property_path = Signal(str, str)
+
     def __init__(
             self,
             files: list[str],
@@ -29,6 +31,8 @@ class Player(QMainWindow):
         super().__init__()
 
         self.video_path = files[0]  # TODO: support multiple files as playlist
+
+        self.on_property_path.connect(self.on_property_path_slot)
 
         self.renderer = Renderer(self, show_log=True)
         self.title_bar = TitleBar(self)
@@ -49,11 +53,13 @@ class Player(QMainWindow):
         # child widget might take focus, use event filter to handle global shortcuts
         QApplication.instance().installEventFilter(self)
 
+        self.mpv.play(self.video_path)
+
     def setup_mpv(self):
         self.mpv = self.renderer.mpv
+        self.mpv.observe_property('path', self.on_property_path.emit)
         self.mpv.observe_property('duration', self.on_property_duration)
         self.mpv.observe_property('time-pos', self.on_property_time_pos)
-        self.mpv.play(self.video_path)
 
     def setup_preview_thumb(self):
         return PreviewThumb(self.video_path, self)
@@ -71,7 +77,6 @@ class Player(QMainWindow):
         )
 
         self.tags_panel = TagsPanel(panel)
-        self.update_tags_panel()
         self.tags_panel.tag_double_clicked.connect(self.seek_tag)
         self.tags_panel.edit_tag_clicked.connect(self.edit_tag)
         self.tags_panel.delete_tag_clicked.connect(self.delete_tag)
@@ -189,6 +194,11 @@ class Player(QMainWindow):
         else:
             self.setCursor(util.cursor_from_edges(util.calc_resize_edges(pos, self.rect())))
 
+    def on_property_path_slot(self, _, path):
+        self.sidecar = Sidecar(path)
+        self.osc.set_sidecar(self.sidecar)
+        self.update_tags_panel()
+
     def on_property_time_pos(self, _, time_pos):
         self.osc.set_time_pos(time_pos)
 
@@ -235,10 +245,6 @@ class Player(QMainWindow):
         with self.sidecar.tags as tags:
             tags.add({'time_pos': time_pos})
         self.update_tags_panel()
-
-    @property
-    def sidecar(self):
-        return Sidecar(self.video_path)
 
 
 CtrlLeft = Qt.Key_Left | Qt.ControlModifier

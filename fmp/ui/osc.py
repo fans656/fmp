@@ -80,6 +80,10 @@ class OSC(QWidget):
         # Set the main layout to the widget
         self.setLayout(main_layout)
 
+    def set_sidecar(self, sidecar):
+        with sidecar.tags as tags:
+            self.progress.set_tags(tags)
+
     def set_duration(self, seconds: float):
         if seconds is not None:
             self.duration = seconds

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, QSize, QRect, Signal
-from PySide6.QtGui import QIcon, QPainter
+from PySide6.QtGui import QIcon, QPainter, QFont, QFontMetrics, QTextOption
 
 
 class Progress(QWidget):
@@ -31,6 +31,9 @@ class Progress(QWidget):
     def set_duration(self, duration):
         self.duration = duration
 
+    def set_tags(self, tags):
+        self.indicator.tags = tags or {'tags': []}
+
     def on_slider_pressed(self):
         percent = float(self.slider.value()) / PROGRESS_RANGE * 100.0
         self.percent_seek_requested.emit(percent)
@@ -51,12 +54,7 @@ class Indicator(QWidget):
         self.slider = slider
         self.progress = progress
 
-        #self.tags = [0.0, 0.5, 0.6, 1.0]
-        self.tags = [
-            {'time_pos': 0},
-            {'time_pos': 60},
-            {'time_pos': 99},
-        ]
+        self.tags = []
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -73,10 +71,25 @@ class Indicator(QWidget):
         painter = QPainter(self)
         painter.setPen(Qt.black)
 
-        for tag in self.tags:
+        font = QFont()
+        font.setPixelSize(9)
+        painter.setFont(font)
+
+        fm = QFontMetrics(font)
+
+        last_tag_ending_x = 0
+        for tag in self.tags.sorted_tags:
             ratio = tag['time_pos'] / duration
-            position = ratio * slider_width
-            painter.drawLine(position, 0, position, self.height())
+            x = ratio * slider_width
+            painter.drawLine(x, 0, x, self.height())
+
+            text = tag.get('tag')
+            if text:
+                if x >= last_tag_ending_x:
+                    width = 20
+                    text_rect = QRect(x, 0, width, 12)
+                    painter.drawText(text_rect, text)
+                    last_tag_ending_x = x + width
 
 
 class Slider(QSlider):
@@ -98,7 +111,7 @@ class Slider(QSlider):
 
             QSlider::handle:horizontal {
                 background: #555;
-                width: 4px;
+                width: 1px;
                 height: 16px;
             }
 

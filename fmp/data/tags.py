@@ -27,6 +27,10 @@ class Tags:
         return self.load()['tags']
 
     @property
+    def sorted_tags(self):
+        return sorted(self.tags, key=lambda d: d['time_pos'])
+
+    @property
     def reversed_tags(self):
         return sorted(self.tags, key=lambda d: d['time_pos'], reverse=True)
 

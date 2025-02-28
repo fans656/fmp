@@ -1,6 +1,11 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 from fmp.ui import cons
+
+
+def dispatch(func):
+    QTimer.singleShot(0, func)
+    print('hi')
 
 
 def cursor_from_edges(edge):
