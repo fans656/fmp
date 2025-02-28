@@ -68,6 +68,7 @@ class Player(QMainWindow):
         return OSC(
             self,
             seek_percent=self.seek_percent,
+            seek_time=self.seek_time,
             preview_percent=self.preview_percent,
         )
 
@@ -219,6 +220,11 @@ class Player(QMainWindow):
     def seek(self, time):
         self.mpv.seek(time)
 
+        now = self.mpv.time_pos
+        self.osd(f'Seek {"+" if time > 0 else ""}{time}s ({util.humanized_time(now)})', 200)
+
+    def seek_time(self, time):
+        self.mpv.time_pos = time
         now = self.mpv.time_pos
         self.osd(f'Seek {"+" if time > 0 else ""}{time}s ({util.humanized_time(now)})', 200)
 

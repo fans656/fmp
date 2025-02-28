@@ -6,6 +6,7 @@ from PySide6.QtGui import QIcon, QPainter, QFont, QFontMetrics, QTextOption
 class Progress(QWidget):
 
     percent_seek_requested = Signal(float)
+    time_seek_requested = Signal(float)
 
     def __init__(
             self,
@@ -22,6 +23,7 @@ class Progress(QWidget):
         self.slider.sliderPressed.connect(self.on_slider_pressed)
 
         self.indicator = Indicator(self.slider, progress=self)
+        self.indicator.indicator_clicked.connect(self.on_indicator_clicked)
 
         lt = QVBoxLayout(self)
         lt.setSpacing(0)
@@ -45,8 +47,13 @@ class Progress(QWidget):
     def set_ratio_pos(self, ratio):
         self.slider.setValue(ratio * PROGRESS_RANGE)
 
+    def on_indicator_clicked(self, tag):
+        self.time_seek_requested.emit(tag['time_pos'])
+
 
 class Indicator(QWidget):
+
+    indicator_clicked = Signal(dict)
 
     def __init__(self, slider, progress):
         super().__init__()
@@ -55,6 +62,8 @@ class Indicator(QWidget):
         self.progress = progress
 
         self.tags = []
+
+        self.setMouseTracking(True)
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -90,6 +99,25 @@ class Indicator(QWidget):
                     text_rect = QRect(x, 0, width, 12)
                     painter.drawText(text_rect, text)
                     last_tag_ending_x = x + width
+
+    #def mouseMoveEvent(self, event):
+    #    tag = self.find_tag_by_x(event.pos().x())
+
+    def mousePressEvent(self, event):
+        tag = self.find_tag_by_x(event.pos().x())
+        if tag:
+            self.indicator_clicked.emit(tag)
+
+    def find_tag_by_x(self, x):
+        duration = self.progress.duration
+        if duration is None:
+            return
+        slider_width = self.slider.width()
+
+        for tag in self.tags.reversed_tags:
+            tag_x = tag['time_pos'] / duration * slider_width
+            if x >= tag_x:
+                return tag
 
 
 class Slider(QSlider):

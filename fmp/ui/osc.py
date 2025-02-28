@@ -16,6 +16,7 @@ class OSC(QWidget):
     def __init__(
             self,
             *args,
+            seek_time=None,
             seek_percent=None,
             preview_percent=None,
             **kwargs,
@@ -32,6 +33,7 @@ class OSC(QWidget):
         # Play progress slider
         self.progress = Progress(preview_percent=preview_percent)
         self.progress.percent_seek_requested.connect(self.seek_percent)
+        self.progress.time_seek_requested.connect(seek_time)
         main_layout.addWidget(self.progress)
 
         # Control buttons and time display
