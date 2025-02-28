@@ -8,30 +8,7 @@ from fmp.ui import cons
 from fmp.ui.util import humanized_time
 
 from .renderer import Renderer
-
-
-class ProgressBar(QSlider):
-
-    def __init__(self, *args, preview_percent=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.preview_percent = preview_percent
-
-        self.setMouseTracking(True)
-
-        self.setStyleSheet('QSlider { margin: 0px; padding: 0px; }')
-
-    def leaveEvent(self, event):
-        self.preview_percent(None)
-
-    def mouseMoveEvent(self, event):
-        pos = event.pos().x()
-
-        slider_range = self.maximum() - self.minimum()
-        slider_width = self.width()
-        value = self.minimum() + (pos / slider_width) * slider_range
-
-        self.preview_percent(value / slider_range * 100.0)
+from .progress_bar import ProgressBar
 
 
 class OSC(QWidget):
@@ -52,12 +29,9 @@ class OSC(QWidget):
         main_layout.setContentsMargins(10, 0, 10, 0)
 
         # Play progress slider
-        self.progress_slider = ProgressBar(Qt.Horizontal, preview_percent=preview_percent)
-        self.progress_slider.setRange(0, progress_range)
-        self.progress_slider.setValue(0)
-        self.progress_slider.setFixedHeight(10)
-        self.progress_slider.sliderPressed.connect(self.on_progress_slider_press)
-        main_layout.addWidget(self.progress_slider)
+        self.progress = ProgressBar(preview_percent=preview_percent)
+        self.progress.percent_seek_requested.connect(self.seek_percent)
+        main_layout.addWidget(self.progress)
 
         # Control buttons and time display
         control_layout = QHBoxLayout()
@@ -110,7 +84,7 @@ class OSC(QWidget):
             return
         self.current_time_label.setText(humanized_time(current_time))
         self.total_time_label.setText(humanized_time(total_time))
-        self.progress_slider.setValue(current_time / total_time * progress_range)
+        self.progress.set_ratio_pos(current_time / total_time)
 
     def toggle_play_pause(self, is_playing):
         if is_playing:
@@ -123,9 +97,3 @@ class OSC(QWidget):
             self.mute_button.setIcon(QIcon.fromTheme("audio-volume-muted"))
         else:
             self.mute_button.setIcon(QIcon.fromTheme("audio-volume-high"))
-
-    def on_progress_slider_press(self):
-        self.seek_percent(float(self.progress_slider.value()) / progress_range * 100.0)
-
-
-progress_range = 10000
