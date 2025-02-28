@@ -26,9 +26,22 @@ class Tags:
     def tags(self):
         return self.load()['tags']
 
+    @property
+    def reversed_tags(self):
+        return sorted(self.tags, key=lambda d: d['time_pos'], reverse=True)
+
     def load(self):
         return self.fpath.load(default={'tags': []})
 
     def save(self, data):
         self.fpath.save(data, indent=2, ensure_ascii=False)
 
+    def find_nearest_tag(self, time_pos):
+        ret = None
+        min_dis = float('inf')
+        for tag in self.reversed_tags:
+            dis = abs(tag['time_pos'] - time_pos)
+            if dis < min_dis or dis == min_dis and tag['time_pos'] < time_pos:
+                min_dis = dis
+                ret = tag
+        return ret
