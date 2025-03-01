@@ -1,3 +1,4 @@
+import os
 import sys
 import argparse
 
@@ -15,6 +16,11 @@ if __name__ == "__main__":
     parser.add_argument('--y', type=int, default=None, help='Window y position')
     parser.add_argument('file', nargs='+', help='File(s) to play')
     args = parser.parse_args()
+
+    if args.file[0] == 'script' and len(args.file) > 1:
+        script = args.file[1]
+        os.system(f'uv run -m fmp.scripts.{script}')
+        exit()
 
     app = QApplication(sys.argv)
 
