@@ -29,6 +29,10 @@ class Tags:
         return self.load()['tags']
 
     @property
+    def template_tags(self):
+        return list({d['tag']: d for d in self.tags if d.get('tag')}.values())
+
+    @property
     def sorted_tags(self):
         return sorted(self.tags, key=lambda d: d['time_pos'])
 

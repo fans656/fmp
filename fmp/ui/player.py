@@ -98,8 +98,8 @@ class Player(QMainWindow):
             with self.sidecar.tags as tags:
                 tag = tags.find_nearest_tag(self.mpv.time_pos)
         if tag:
-            TagDialog(tag).exec()
             with self.sidecar.tags as tags:
+                TagDialog(tag, tags).exec()
                 tags.update(tag)
             self.update_tags_panel()
         else:
