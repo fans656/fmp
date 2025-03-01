@@ -8,8 +8,11 @@ from fmp.data.tags import Tags
 class Sidecar:
 
     def __init__(self, fpath: str, conf: dict):
-        self.dir_path = Path(f'{fpath}.sidecar')
         self.conf = conf
+        if conf.get('sidecar'):
+            self.dir_path = Path(conf['sidecar']) / f'{Path(fpath).name}.sidecar'
+        else:
+            self.dir_path = Path(f'{fpath}.sidecar')
 
     @property
     def tags(self):
