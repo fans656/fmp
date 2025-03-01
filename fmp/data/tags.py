@@ -1,5 +1,7 @@
 from fans.path import make_paths, Path
 
+from fmp.logic.utils import find_nearest
+
 
 class Tags:
 
@@ -41,11 +43,32 @@ class Tags:
         self.fpath.save(data, indent=2, ensure_ascii=False)
 
     def find_nearest_tag(self, time_pos):
-        ret = None
-        min_dis = float('inf')
-        for tag in self.reversed_tags:
-            dis = abs(tag['time_pos'] - time_pos)
-            if dis < min_dis or dis == min_dis and tag['time_pos'] < time_pos:
-                min_dis = dis
-                ret = tag
-        return ret
+        return find_nearest(self.sorted_tags, time_pos, key='time_pos')
+
+    def find_prev_tag(self, time_pos):
+        tag = self.find_nearest_tag(time_pos)
+        if tag:
+            if tag['time_pos'] < time_pos:
+                return tag
+            else:
+                return self.get_prev_tag(tag)
+
+    def find_next_tag(self, time_pos):
+        tag = self.find_nearest_tag(time_pos)
+        if tag:
+            if time_pos < tag['time_pos']:
+                return tag
+            else:
+                return self.get_next_tag(tag)
+
+    def get_prev_tag(self, target):
+        tags = self.sorted_tags
+        for i, tag in enumerate(tags):
+            if tag['time_pos'] == target['time_pos']:
+                return tags[i - 1] if i - 1 >= 0 else tags[-1]
+
+    def get_next_tag(self, target):
+        tags = self.sorted_tags
+        for i, tag in enumerate(tags):
+            if tag['time_pos'] == target['time_pos']:
+                return tags[i + 1] if i + 1 < len(tags) else tags[0]

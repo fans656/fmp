@@ -109,6 +109,18 @@ class Player(QMainWindow):
         with self.sidecar.tags as tags:
             self.tags_panel.update(tags.sorted_tags)
 
+    def goto_prev_tag(self):
+        with self.sidecar.tags as tags:
+            tag = tags.find_prev_tag(self.mpv.time_pos)
+        if tag:
+            self.seek_tag(tag)
+
+    def goto_next_tag(self):
+        with self.sidecar.tags as tags:
+            tag = tags.find_next_tag(self.mpv.time_pos)
+        if tag:
+            self.seek_tag(tag)
+
     def setup_right_side_panel(self):
         return SidePanel(
             self,
@@ -171,6 +183,9 @@ class Player(QMainWindow):
 
                 (Qt.Key_F, lambda: self.mpv.command('frame-step')),
                 (Qt.Key_D, lambda: self.mpv.command('frame-back-step')),
+
+                (Qt.Key_B, self.goto_prev_tag),
+                (Qt.Key_W, self.goto_next_tag),
         ]:
             shortcut = QShortcut(key, self)
             shortcut.activated.connect(func)
