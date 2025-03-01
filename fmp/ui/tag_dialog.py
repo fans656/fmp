@@ -17,7 +17,8 @@ class TagDialog(QDialog):
 
         self.setWindowFlags(Qt.FramelessWindowHint)
 
-        self.tag_name_edit = QLineEdit()
+        self.tag_name_edit = Edit()
+        self.tag_name_edit.quick_select.connect(self.on_quick_select)
         self.tag_name_edit.setText(tag.get('tag', ''))
         self.tag_name_edit.returnPressed.connect(self.update_tag)
 
@@ -34,13 +35,38 @@ class TagDialog(QDialog):
         self.close()
 
     def on_tag_selected(self, tag):
-        self.append_tag(tag)
+        self.toggle_tag(tag)
 
-    def append_tag(self, tag):
+    def toggle_tag(self, tag):
         text = self.tag_name_edit.text()
-        text = ' '.join(sorted(set([*text.split(), tag['tag']])))
+        tags = set(text.split())
+        if tag['tag'] in tags:
+            tags.remove(tag['tag'])
+        else:
+            tags.add(tag['tag'])
+        text = ' '.join(sorted(tags))
         self.tag_name_edit.setText(text)
         self.tag['tag'] = self.tag_name_edit.text()
+
+    def on_quick_select(self, key: str):
+        for tag in self.tags.template_tags:
+            if tag.get('key') == key:
+                self.toggle_tag(tag)
+                break
+
+
+class Edit(QLineEdit):
+
+    quick_select = Signal(str)
+
+    def __init__(self):
+        super().__init__()
+
+    def keyPressEvent(self, event):
+        if event.modifiers() == Qt.AltModifier:
+            self.quick_select.emit(event.text().lower())
+        else:
+            return super().keyPressEvent(event)
 
 
 class TagsSelector(QWidget):
@@ -58,7 +84,11 @@ class TagsSelector(QWidget):
         for i, tag in enumerate((d for d in self.tags.template_tags)):
             row = i // n_col
             col = i % n_col
-            button = QPushButton(tag['tag'])
+
+            label = tag['tag']
+            if tag.get('key'):
+                label = f'{tag["key"]}: {label}'
+            button = QPushButton(label)
             emit = lambda tag: (lambda: self.tag_selected.emit(tag))
             button.clicked.connect(emit(tag))
             lt.addWidget(button, row, col)
