@@ -8,6 +8,7 @@ from .ui import Player
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
 
@@ -15,6 +16,7 @@ if __name__ == "__main__":
 
     player = Player(
         files=args.files,
+        config_path=args.config,
     )
     player.resize(800, 600)
     player.show()

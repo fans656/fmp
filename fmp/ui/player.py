@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QMainWindow, QLineEdit, QTextEdit, QApplication, Q
 from PySide6.QtCore import Qt, QRect, QEvent, Signal
 from PySide6.QtGui import QShortcut
 from fans.logger import get_logger
+from fans.path import Path
 
 from fmp.ui import cons
 from fmp.ui import util
@@ -27,10 +28,12 @@ class Player(QMainWindow):
     def __init__(
             self,
             files: list[str],
+            config_path: str,
     ):
         super().__init__()
 
         self.video_path = files[0]  # TODO: support multiple files as playlist
+        self.conf = Path(config_path or 'conf.yaml').as_meta()
 
         self.on_property_path.connect(self.on_property_path_slot)
 
@@ -211,7 +214,7 @@ class Player(QMainWindow):
             self.setCursor(util.cursor_from_edges(util.calc_resize_edges(pos, self.rect())))
 
     def on_property_path_slot(self, _, path):
-        self.sidecar = Sidecar(path)
+        self.sidecar = Sidecar(path, self.conf)
         self.osc.set_sidecar(self.sidecar)
         self.update_tags_panel()
 

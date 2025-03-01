@@ -7,13 +7,14 @@ from fmp.data.tags import Tags
 
 class Sidecar:
 
-    def __init__(self, fpath: str):
+    def __init__(self, fpath: str, conf: dict):
         self.dir_path = Path(f'{fpath}.sidecar')
+        self.conf = conf
 
     @property
     def tags(self):
         @contextlib.contextmanager
         def _tags():
             self.dir_path.ensure_dir()
-            yield Tags(self.dir_path)
+            yield Tags(self.dir_path, conf=self.conf)
         return _tags()

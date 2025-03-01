@@ -5,8 +5,9 @@ from fmp.logic.utils import find_nearest
 
 class Tags:
 
-    def __init__(self, dir_path: Path):
+    def __init__(self, dir_path: Path, conf: dict = None):
         self.fpath = dir_path / 'tags.json'
+        self.conf = conf
 
     def add(self, tag: dict):
         data = self.load()
@@ -30,7 +31,8 @@ class Tags:
 
     @property
     def template_tags(self):
-        return list({d['tag']: d for d in self.tags if d.get('tag')}.values())
+        candidates = [*self.tags, *self.conf.get('tags', [])]
+        return list({d['tag']: d for d in candidates if d.get('tag')}.values())
 
     @property
     def sorted_tags(self):
