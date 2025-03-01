@@ -35,34 +35,30 @@ class Player(QMainWindow):
         self.video_path = files[0]  # TODO: support multiple files as playlist
         self.conf = Path(config_path or 'conf.yaml').as_meta()
 
-        self.on_property_path.connect(self.on_property_path_slot)
-
-        self.renderer = Renderer(self, show_log=True)
-        self.title_bar = TitleBar(self)
-        self.osc = self.setup_osc()
-        self.left_side_panel = self.setup_left_side_panel()
-        self.right_side_panel = self.setup_right_side_panel()
-        self.drawers = self.setup_drawers()
-
-        self.preview_thumb = self.setup_preview_thumb()
-
-        self.setup_mpv()
-
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setCentralWidget(self.renderer)
-
         self.setup_shortcuts()
-
+        self.on_property_path.connect(self.on_property_path_slot)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         # child widget might take focus, use event filter to handle global shortcuts
         QApplication.instance().installEventFilter(self)
 
-        self.mpv.play(self.video_path)
+        self.renderer = Renderer(self, show_log=True)
+        self.setCentralWidget(self.renderer)
+
+        self.title_bar = TitleBar(self)
+        self.osc = self.setup_osc()
+        self.left_panel = self.setup_left_panel()
+        self.right_panel = self.setup_right_panel()
+        self.drawers = self.setup_drawers()
+        self.preview_thumb = self.setup_preview_thumb()
+
+        self.setup_mpv()
 
     def setup_mpv(self):
         self.mpv = self.renderer.mpv
         self.mpv.observe_property('path', self.on_property_path.emit)
         self.mpv.observe_property('duration', self.on_property_duration)
         self.mpv.observe_property('time-pos', self.on_property_time_pos)
+        self.mpv.play(self.video_path)
 
     def setup_preview_thumb(self):
         return PreviewThumb(self.video_path, self)
@@ -75,7 +71,7 @@ class Player(QMainWindow):
             preview_percent=self.preview_percent,
         )
 
-    def setup_left_side_panel(self):
+    def setup_left_panel(self):
         panel = SidePanel(
             self,
         )
@@ -124,7 +120,7 @@ class Player(QMainWindow):
         if tag:
             self.seek_tag(tag)
 
-    def setup_right_side_panel(self):
+    def setup_right_panel(self):
         return SidePanel(
             self,
         )
@@ -143,13 +139,13 @@ class Player(QMainWindow):
             height=cons.osc.height,
         )
         drawers.add(
-            self.left_side_panel,
+            self.left_panel,
             'left',
             hover_width=cons.side_panel.hover_width,
             width=cons.side_panel.width,
         )
         drawers.add(
-            self.right_side_panel,
+            self.right_panel,
             'right',
             hover_width=cons.side_panel.hover_width,
             width=cons.side_panel.width,
